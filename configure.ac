@@ -4169,7 +4169,7 @@ if test "$enable_gdb_index" != "no"; then
         AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[ return 0; ]])],[have_ggnu_pubnames=TRUE],[have_ggnu_pubnames=])
         if test "$have_ggnu_pubnames" != "TRUE"; then
             if test "$enable_gdb_index" = "yes"; then
-                AC_MSG_ERROR( no, --enable-gdb-index not supported )
+                AC_MSG_ERROR([no, --enable-gdb-index not supported])
             else
                 AC_MSG_RESULT( no )
             fi
