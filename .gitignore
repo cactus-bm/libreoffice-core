@@ -197,5 +197,5 @@ LibreOffice.VC.VC.opendb
 
 /cactus-build/temporary*
 /cactus-build/converted
-/cactus-build/cactus-libreoffice-*
+/cactus-build/cactus-libreoffice*
 README.md.backup
