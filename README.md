@@ -24,6 +24,14 @@ scripting facilities, dictionaries  and GUI specific libraries, and together wit
 
 ## Building Cactus version of LibreOffice.
 
+### Building on Amazon-Linux-2 OS.
+It must be noted that if not built in a Amazon EC2 environment the build may not successfully run without adding many libraries to that environment,
+however if built with an __Amazon-linux-2__ OS it will.
+
+Setting up __Amazon-linux-2__ environment for building is described in
+[cactus-build/README-ec2-build.md](cactus-build/README-ec2-build.md)
+
+### Cactus version of LibreOffice/core
 This is a fork of the GitHub mirror of LibreOffice/core and also requires two other LibrOffice forks one called libreoffice-dictionaries and the other libreoffice-help. The build process is as for standard LibeOffice but then we have scripts to cut the output down to a minimum size so that we can use it.
 
 The process:
