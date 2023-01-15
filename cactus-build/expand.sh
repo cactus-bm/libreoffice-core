@@ -1,14 +1,6 @@
 #!/bin/bash
-BASE=../workdir/installation/LibreOfficeDev/archive/install/en-US/
-if [[ $# > 0 ]]
-then
-        BASE=$1
-fi
-cd $BASE
-rm -r -f instdir
-tar -xzf LibreOff*.tar.gz
 
-mv LibreOffice*archive instdir
+cp -r ../instdir .
 cd instdir
 rm -r -f help
 rm -r -f readmes
@@ -40,7 +32,6 @@ rm -v -r -f  xpdfimport
 rm -v -r -f  xslt
 rm -v -r -f  dtd
 rm -v -r -f extensions
-rm -v -r -f fonts
 rm -v config/images*
 
 echo Removing libraries from program
@@ -87,9 +78,8 @@ rm -v libdbalo.so
 rm -v libchartcorelo.so
 #rm -v libicudata.so.72
 #rm -v libmergedlo.so
-rm -v liblocaledata_euro.so
-rm -v libetonyek-0.1-lo.so.1
-
+echo adding missing files
+cp -v /usr/lib64/libfontconfig.so.1 .
 cd ..
 cd ..
 # This first off run needs to be done, it configures
