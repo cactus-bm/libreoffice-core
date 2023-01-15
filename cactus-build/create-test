@@ -1,6 +1,5 @@
 #! /bin/bash
 
-BASE="../workdir/installation/LibreOfficeDev/archive/install/en-US"
 ONLY_ONE=0
 DO_PPT=0
 DO_XLS=0
@@ -14,7 +13,7 @@ do
 	if [[ "X$1" == "Xclean" ]]
 	then
 		PARS=$PARS" "$1
-		rm -r -f $BASE/instdir
+		rm -r -f instdir
 	fi
 	if [[ "X$1" == "Xhtml" ]]
 	then
@@ -56,44 +55,24 @@ do
 		echo
 		rm cactus-libreoffice*.zip
 		echo tar does, expanding
-		./expand.sh $BASE
+		./expand.sh
 		echo tar expanded
-		(
-			echo building release file
-			VERSION=`ls $BASE/Libre*archive*.gz| awk -F_ '{print $2}'`
-			CV=`git tag | sort -V | tail -1`
-			if [[ "X$CV" == "X" ]]
-			then
-				CV=1
-			fi
+		echo building release file
+		. instdir/sdk/settings/dk.mk 
+                VERSION=$BUILDID-$PROCTYPE-$PLATFORM
+		CV=`git tag | sort -V | tail -1`
 
-			cd $BASE
-			rm lo.* cactus-libreoffice*.zip
-			echo tar
-			tar -cf lo.tar instdir
-			echo brotli zip
-			brotli -Z -v lo.tar
-			echo zip
-			zip -9 cactus-libreoffice_${VERSION}_${CV}.zip lo.tar.br
-			echo Sizes of produced files
-			du -s --apparent-size lo* cactus*
-			rm lo.*
-			echo
-		)
-		mv $BASE/cactus-libreoffice*.zip .
+		echo tar
+		tar -cf lo.tar instdir
+		echo brotli zip
+		brotli -Z -v lo.tar
+		echo zip
+		NAME=cactus-libreoffice_${VERSION}_${CV}.zip
+		zip -9 $NAME lo.tar.br
+		echo built $NAME
+		du -s --apparent-size lo* cactus*
+		rm lo.*
 		exit 
-	fi
-	if [[ "X$1" == "Xbase" ]]
-	then
-		PARS=$PARS" "$1
-		if [[ $# == 1 ]]
-		then
-			echo A parameter must be provide with base
-			exit 1
-		fi
-		shift
-		BASE=$1
-		PARS=$PARS" "$1
 	fi
 	shift
 done
@@ -126,11 +105,6 @@ then
        	echo "      build: means construct the layer file. Note if this"
 	echo "             is provided no other options are taken into"
 	echo "             account."
-	echo "      base directory: Sets base to directory, directory is the"
-	echo "                      place contraining the instdir"
-	echo "                      directory. Note this option cannot be"
-	echo "                      provided alone, it would perform no"
-	echo "                      useful activity."
 	exit 1
 fi
 
@@ -138,18 +112,11 @@ echo Active command line is : $PARS
 rm -r -f converted
 mkdir -p converted
 
-if [ ! -f $BASE/instdir/program/soffice.bin ]
+if [ ! -f instdir/program/soffice.bin ]
 then
 	echo soffice.bin does not exist
-	if [ -f $BASE/LibreOffice*tar.gz ]
-	then
-		echo tar does, expanding
-		./expand.sh $BASE
-		echo tar expanded
-	else
-		echo no tar aborting
-		exit 1
-	fi
+	./expand.sh
+	echo expanded
 fi
 
 if [[ $DO_HTML == 1 ]]
@@ -158,7 +125,7 @@ then
 	for FILE in $(ls *.xlsx *.ods)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
@@ -182,7 +149,7 @@ then
 	for FILE in $(ls *.doc)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
@@ -206,7 +173,7 @@ then
 	for FILE in $(ls *.doc *.docx)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
@@ -230,7 +197,7 @@ then
 	for FILE in $(ls *.ppt)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
@@ -254,7 +221,7 @@ then
 	for FILE in $(ls *.xls)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
@@ -279,7 +246,7 @@ then
 	for FILE in $(ls *.xls)
 	do
 		echo processing $FILE
-		$BASE/instdir/program/soffice.bin \
+		instdir/program/soffice.bin \
        			--headless \
        			--norestore \
        			--invisible \
