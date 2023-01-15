@@ -59,7 +59,7 @@ do
 		echo tar expanded
 		echo building release file
 		. instdir/sdk/settings/dk.mk 
-                VERSION=$BUILDID-$PROCTYPE-$PLATFORM
+		VERSION=$(echo $BUILDID | sed 's/\./-/g')
 		CV=`git tag | sort -V | tail -1`
 
 		echo tar
