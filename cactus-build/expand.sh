@@ -29,7 +29,7 @@ rm -r -f  wizards
 rm -r -f  wordbook
 rm -r -f  xdg
 rm -r -f  xpdfimport
-rm -r -f  xslt
+#rm -r -f  xslt
 rm -r -f  dtd
 rm -r -f extensions
 rm config/images*
@@ -59,7 +59,6 @@ rm libOsi*
 rm libpython3.8.so.1.0
 rm libpython3.8.so
 rm libmwaw-0.3-lo.so.3
-rm libsdlo.so
 rm liblocaledata_others.so
 rm libpostgresql-sdbc-impllo.so
 rm libdbulo.so
@@ -88,6 +87,10 @@ rm libfirebird_sdbclo.so
 rm libcomphelper.so
 rm librptlo.so
 rm libjdbclo.so
+
+# ----
+
+# rm libsdlo.so
 # rm libscfiltlo.so
 # rm libpdfiumlo.so
 # rm libooxlo.so
