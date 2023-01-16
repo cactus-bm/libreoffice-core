@@ -12,74 +12,100 @@ echo
 echo total is $TOTAL_SIZE of which share size is $SHARE_SIZE program size is $PROGRAM_SIZE
 echo Removing libraries from share
 cd share
-rm -v -r -f  Scripts
-rm -v -r -f  autocorr
-rm -v -r -f  autotext
-rm -v -r -f  calc
-rm -v -r -f  fingerprint
-rm -v -r -f  firebird
-rm -v -r -f  gallery
-rm -v -r -f  libreofficekit
-rm -v -r -f  pallette
-rm -v -r -f  template
-rm -v -r -f  theme_definitions
-rm -v -r -f  tipoftheday
+rm -r -f  Scripts
+rm -r -f  autocorr
+rm -r -f  autotext
+rm -r -f  calc
+rm -r -f  fingerprint
+rm -r -f  firebird
+rm -r -f  gallery
+rm -r -f  libreofficekit
+rm -r -f  pallette
+rm -r -f  template
+rm -r -f  theme_definitions
+rm -r -f  tipoftheday
 rm -r -f  toolbarmode
-rm -v -r -f  wizards
-rm -v -r -f  wordbook
-rm -v -r -f  xdg
-rm -v -r -f  xpdfimport
-rm -v -r -f  xslt
-rm -v -r -f  dtd
-rm -v -r -f extensions
-rm -v config/images*
+rm -r -f  wizards
+rm -r -f  wordbook
+rm -r -f  xdg
+rm -r -f  xpdfimport
+rm -r -f  xslt
+rm -r -f  dtd
+rm -r -f extensions
+rm config/images*
 
 echo Removing libraries from program
 cd ..
 cd program
-rm -v JREProperties.class
-rm -v -r -f __pycache__
-rm -v -r -f classes
-rm -v *.png
-rm -v libjava*
-rm -v libldap*
-rm -v libofficebean*
-rm -v mailmerge*
-rm -v msgbox*
-rm -v officehelp*
-rm -v -r -f wizards
-rm -v xpdfimport
-rm -v -r -f opencl*
-rm -v -r -f shell
-rm -v java*
-rm -v libC*
-rm -v libEng*
-rm -v libLang*
-rm -v libOsi*
-rm -v libpython3.8.so.1.0
-rm -v libpython3.8.so
-rm -v libmwaw-0.3-lo.so.3
-##rm -v libsdlo.so
-rm -v liblocaledata_others.so
-rm -v libpostgresql-sdbc-impllo.so
-#rm -v libooxlo.so
-#rm -v libsclo.so
-#rm -v libswlo.so
-rm -v libdbulo.so
-rm -v -r -f python-core-3.8.16
-#rm -v libclucene.so
-rm -v libwps-0.4-lo.so.4
-rm -v libvbaswobjlo.so
-rm -v libvbaobjlo.so
-rm -v libwpftdrawlo.so
-rm -v libdbalo.so
-#rm -v libicuuc.so.72
-#rm -v libicui18n.so.72
-rm -v libchartcorelo.so
-#rm -v libicudata.so.72
-#rm -v libmergedlo.so
-echo adding missing files
-cp -v /usr/lib64/libfontconfig.so.1 .
+rm JREProperties.class
+rm -r -f __pycache__
+rm -r -f classes
+rm *.png
+rm libjava*
+rm libldap*
+rm libofficebean*
+rm mailmerge*
+rm msgbox*
+rm officehelp*
+rm -r -f wizards
+rm xpdfimport
+rm -r -f opencl*
+rm -r -f shell
+rm java*
+rm libC*
+rm libEng*
+rm libLang*
+rm libOsi*
+rm libpython3.8.so.1.0
+rm libpython3.8.so
+rm libmwaw-0.3-lo.so.3
+rm libsdlo.so
+rm liblocaledata_others.so
+rm libpostgresql-sdbc-impllo.so
+rm libdbulo.so
+rm -r -f python-core-3.8.16
+rm libwps-0.4-lo.so.4
+rm libvbaswobjlo.so
+rm libvbaobjlo.so
+rm libdbalo.so
+rm libchartcorelo.so
+rm libchartcontrollerlo.so
+rm libmysqlclo.so
+rm libdict_*.so
+rm libodbclo.so
+rm libPresenterScreenlo.so
+rm libwpftwriterlo.so
+rm libucpcmis1lo.so
+rm liblocaledata_euro.so
+rm libetonyek-0.1-lo.so.1
+rm libfbclient.so.2
+rm libwpd-0.10-lo.so.10
+rm libodfgen-0.1-lo.so.1
+rm liblwpftlo.so
+rm libbasegfxlo.so
+rm libdbaselo.so
+rm libfirebird_sdbclo.so
+rm libcomphelper.so
+rm librptlo.so
+rm libjdbclo.so
+# rm libscfiltlo.so
+# rm libpdfiumlo.so
+# rm libooxlo.so
+# rm libsclo.so
+# rm libswlo.so
+# rm libclucene.so
+# rm libwpftdrawlo.so
+# rm libicuuc.so.72
+# rm libicui18n.so.72
+# rm libicudata.so.72
+# rm libmergedlo.so
+# rm libslideshowlo.so
+# rm libuno_cppuhelpergcc3.so.3
+
+echo adding extra libraries
+cp /usr/lib64/libssl3.so .
+cp /usr/lib64/libsmime3.so .
+cp /usr/lib64/libnss3.so .
 cd ..
 cd ..
 # This first off run needs to be done, it configures

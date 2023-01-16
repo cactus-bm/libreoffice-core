@@ -15,22 +15,22 @@ do
 		PARS=$PARS" "$1
 		rm -r -f instdir
 	fi
-	if [[ "X$1" == "Xhtml" ]]
+	if [[ "X$1" == "Xhtml" || "X$1" == "Xall" ]]
 	then
 		PARS=$PARS" "$1
 		DO_HTML=1
 	fi
-	if [[ "X$1" == "Xdoc" ]]
+	if [[ "X$1" == "Xdoc" || "X$1" == "Xall" ]]
 	then
 		PARS=$PARS" "$1
 		DO_DOC=1
 	fi
-	if [[ "X$1" == "Xdoc-pdf" ]]
+	if [[ "X$1" == "Xdoc-pdf" || "X$1" == "Xall" ]]
 	then
 		PARS=$PARS" "$1
 		DO_DOC_PDF=1
 	fi
-	if [[ "X$1" == "Xxls" ]]
+	if [[ "X$1" == "Xxls" || "X$1" == "Xall" ]]
 	then
 		PARS=$PARS" "$1
 		DO_XLS=1
@@ -40,7 +40,7 @@ do
 		PARS=$PARS" "$1
 		DO_XLS_HTML=1
 	fi
-	if [[ "X$1" == "Xppt" ]]
+	if [[ "X$1" == "Xppt" || "X$1" == "Xall" ]]
 	then
 		PARS=$PARS" "$1
 		DO_PPT=1
@@ -54,6 +54,7 @@ do
 	then
 		echo
 		rm cactus-libreoffice*.zip
+		rm lo.*
 		echo tar does, expanding
 		./expand.sh
 		echo tar expanded
@@ -71,7 +72,6 @@ do
 		zip -9 $NAME lo.tar.br
 		echo built $NAME
 		du -s --apparent-size lo* cactus*
-		rm lo.*
 		exit 
 	fi
 	shift
