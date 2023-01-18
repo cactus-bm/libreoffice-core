@@ -828,20 +828,71 @@ void ScHTMLExport::WriteTables()
         }
         for ( SCROW nRow=nStartRow; nRow<=nEndRow; nRow++ )
         {
+            int firstMissing=-1;
             if ( bHasHiddenRows && pDoc->RowHidden(nRow, nTab) )
             {
+                firstMissing = nRow;
                 nRow = pDoc->FirstVisibleRow(nRow+1, nEndRow, nTab);
-                --nRow;
-                continue;   // for
+                if (nRow > nEndRow) break;
             }
-
-            IncIndent(1); TAG_ON_LF( OOO_STRING_SVTOOLS_HTML_tablerow );
+            OStringBuffer aStrTR(OOO_STRING_SVTOOLS_HTML_tablerow);
+            aStrTR.append(" data-row-num=\"").append(nRow+1).append("\" ");
+            IncIndent(1); TAG_ON_LF( aStrTR );
             bTableDataHeight = true;  // height at every first cell of each row
+
             for ( SCCOL nCol2=nStartCol; nCol2<=nEndCol; nCol2++ )
             {
-                if ( nCol2 == nEndCol )
-                    IncIndent(-1);
-                WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, nRow, nTab );
+                if ( nCol2 == nEndCol ) IncIndent(-1);
+                int processed = 0;
+                if (firstMissing >=0){
+                    int testRow;
+                    for (testRow=firstMissing; testRow<nRow; testRow++){
+                        int remainingHidden = nRow - testRow;
+                        ScAddress aPos( nCol2, testRow, nTab );
+                        ScRefCellValue aCell(*pDoc, aPos, blockPos[ nCol2 - nStartCol ]);
+                        const ScPatternAttr* pAttr = pDoc->GetPattern( nCol2, testRow, nTab );
+                        const SfxItemSet* pCondItemSet = pDoc->GetCondResult( nCol2, testRow, nTab, &aCell );
+
+                        const ScMergeFlagAttr& rMergeFlagAttr = pAttr->GetItem( ATTR_MERGE_FLAG, pCondItemSet );
+                        const ScMergeAttr& rMergeAttr = pAttr->GetItem( ATTR_MERGE, pCondItemSet );
+
+                        ScHTMLGraphEntry* pGraphEntry = nullptr;
+                        if ( bTabHasGraphics && !mbSkipImages )
+                        {
+                            size_t ListSize = aGraphList.size();
+                            for ( size_t i = 0; i < ListSize; ++i )
+                            {
+                                ScHTMLGraphEntry* pE = &aGraphList[ i ];
+                                if ( pE->bInCell && pE->aRange.Contains( aPos ) )
+                                {
+                                    if ( pE->aRange.aStart == aPos )
+                                    {
+                                        pGraphEntry = pE;
+                                        break;  // for
+                                    }
+                                }
+                            }
+                        }
+
+
+                        int rowSpan;
+                        if ( pGraphEntry )
+                            rowSpan = std::max(SCROW(pGraphEntry->aRange.aEnd.Row() -
+                                                    nStartRow + 1),
+                                               rMergeAttr.GetRowMerge() );
+                        else
+                            rowSpan = rMergeAttr.GetRowMerge();
+                        if (rowSpan > remainingHidden){
+                            WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, testRow, nTab );
+                            processed = 1;
+                            break;
+                        }
+
+                    }
+                }
+                if (processed == 0){
+                        WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, nRow, nTab );
+                }
                 bTableDataHeight = false;
             }
 
@@ -890,8 +941,6 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
     const SfxItemSet* pCondItemSet = pDoc->GetCondResult( nStartColumn, nStartRow, nTab, &aCell );
 
     const ScMergeFlagAttr& rMergeFlagAttr = pAttr->GetItem( ATTR_MERGE_FLAG, pCondItemSet );
-    if ( rMergeFlagAttr.IsOverlapped() )
-        return ;
 
     ScHTMLGraphEntry* pGraphEntry = nullptr;
     if ( bTabHasGraphics && !mbSkipImages )
@@ -907,8 +956,6 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
                     pGraphEntry = pE;
                     break;  // for
                 }
-                else
-                    return ; // Is a Col/RowSpan, Overlapped
             }
         }
     }
@@ -923,6 +970,15 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
         nScriptType = aHTMLStyle.nDefaultScriptType;
 
     OStringBuffer aStrTD(OOO_STRING_SVTOOLS_HTML_tabledata);
+
+    aStrTD.append(" ").append("data-cell-code=\"");
+    char sCol = '@'+nStartColumn / 26;
+    char col = 'A'+nStartColumn % 26;
+    if (sCol > '@') aStrTD.append(sCol);
+    aStrTD.append(col).append(nStartRow+1).
+            append("\" data-col-number=\"").
+            append(nStartColumn+1).append("\" ");
+
 
     // border of the cells
     const SvxBoxItem* pBorder = pDoc->GetAttr( nStartColumn, nStartRow, nTab, ATTR_BORDER );
@@ -971,9 +1027,10 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
                 aStrTD.append(' ').append(OOO_STRING_SVTOOLS_HTML_O_colspan).
                     append('=').append(static_cast<sal_Int32>(nActColSpan));
             if (nActColSpan < 1) return; // nothing to print
-        }
-        else
+        } else {
             if (pDoc->ColHidden(nStartColumn, nTab)) return; // nothing to output
+            if ( rMergeFlagAttr.IsOverlapped() ) return ;
+        }
 
 
         if ( pGraphEntry )
@@ -992,16 +1049,19 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
             for (nRowNum=nStartRow; nRowNum <= nLastRow; nRowNum ++)
             {
                 if (pDoc->RowHidden(nRowNum, nTab)) nActRowSpan -= 1;
-        }
+            }
             aStrTD.append(' ').append(OOO_STRING_SVTOOLS_HTML_O_rowspan).
                 append('=').append(static_cast<sal_Int32>(nActRowSpan));
-        }
-        else
+        } else{
             nHeightPixel = ToPixel( pDoc->GetRowHeight( nStartRow, nTab ) );
-    }
-    else{
+            if ( rMergeFlagAttr.IsOverlapped() ) return ;
+        }
+    } else {
         if (pDoc->ColHidden(nStartColumn, nTab)) return; // nothing to output
         nHeightPixel = ToPixel( pDoc->GetRowHeight( nStartRow, nTab ) );
+        if ( rMergeFlagAttr.IsOverlapped() ){
+           return ;
+        }
     }
 
     if ( bTableDataHeight )
