@@ -38,6 +38,7 @@ class SdrObject;
 class OutputDevice;
 class ScDrawLayer;
 class EditTextObject;
+
 enum class SvtScriptType : sal_uInt8;
 namespace editeng { class SvxBorderLine; }
 
@@ -171,9 +172,12 @@ class ScHTMLExport : public ScExportBase
         return sIndent;
     }
 
+    ScHTMLGraphEntry* getGraphEntry(ScAddress aPos);
+
 public:
-                        ScHTMLExport( SvStream&, OUString , ScDocument*, const ScRange&,
-                                      bool bAll, OUString aStreamPath, std::u16string_view aFilterOptions );
+                        ScHTMLExport(SvStream&, OUString , ScDocument*, const ScRange&,
+                                     bool bAll, OUString aStreamPath,
+                                     std::u16string_view aFilterOptions );
     virtual             ~ScHTMLExport() override;
     void                Write();
     const OUString&     GetNonConvertibleChars() const
