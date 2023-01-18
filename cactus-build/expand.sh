@@ -106,9 +106,14 @@ rm libjdbclo.so
 # rm libuno_cppuhelpergcc3.so.3
 
 echo adding extra libraries
-cp /usr/lib64/libssl3.so .
-cp /usr/lib64/libsmime3.so .
-cp /usr/lib64/libnss3.so .
+for LIB in libssl3.so libsmime3.so libnss3.so libfontconfig.so.1 libavahi-client.so.3.2.9 libavahi-common.so.3.5.3
+do
+    if [[ ! -f $LIB ]]
+    then
+        echo installing $LIB
+        cp /usr/lib64/$LIB .
+    fi
+done
 cd ..
 cd ..
 # This first off run needs to be done, it configures
