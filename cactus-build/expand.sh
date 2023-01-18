@@ -29,7 +29,7 @@ rm -r -f  wizards
 rm -r -f  wordbook
 rm -r -f  xdg
 rm -r -f  xpdfimport
-rm -r -f  xslt
+#rm -r -f  xslt
 rm -r -f  dtd
 rm -r -f extensions
 rm config/images*
@@ -59,7 +59,6 @@ rm libOsi*
 rm libpython3.8.so.1.0
 rm libpython3.8.so
 rm libmwaw-0.3-lo.so.3
-rm libsdlo.so
 rm liblocaledata_others.so
 rm libpostgresql-sdbc-impllo.so
 rm libdbulo.so
@@ -88,6 +87,10 @@ rm libfirebird_sdbclo.so
 rm libcomphelper.so
 rm librptlo.so
 rm libjdbclo.so
+
+# ----
+
+# rm libsdlo.so
 # rm libscfiltlo.so
 # rm libpdfiumlo.so
 # rm libooxlo.so
@@ -103,9 +106,14 @@ rm libjdbclo.so
 # rm libuno_cppuhelpergcc3.so.3
 
 echo adding extra libraries
-cp /usr/lib64/libssl3.so .
-cp /usr/lib64/libsmime3.so .
-cp /usr/lib64/libnss3.so .
+for LIB in libssl3.so libsmime3.so libnss3.so libfontconfig.so.1 libavahi-client.so.3.2.9 libavahi-common.so.3.5.3
+do
+    if [[ ! -f $LIB ]]
+    then
+        echo installing $LIB
+        cp /usr/lib64/$LIB .
+    fi
+done
 cd ..
 cd ..
 # This first off run needs to be done, it configures

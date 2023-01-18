@@ -493,12 +493,11 @@ const SfxItemSet& ScHTMLExport::PageDefaults( SCTAB nTab )
     // remember defaults for compare in WriteCell
     if ( !aHTMLStyle.bInitialized )
     {
-        pStyleSheet = pStylePool->Find(
-                ScResId(STR_STYLENAME_STANDARD),
-                SfxStyleFamily::Para );
+        pStyleSheet = pStylePool->Find(ScResId(STR_STYLENAME_STANDARD),
+                                       SfxStyleFamily::Para);
         OSL_ENSURE( pStyleSheet, "ParaStyle not found! :-(" );
-        if (!pStyleSheet)
-            pStyleSheet = pStylePool->First(SfxStyleFamily::Para);
+
+        if (!pStyleSheet) pStyleSheet = pStylePool->First(SfxStyleFamily::Para);
         const SfxItemSet& rSetPara = pStyleSheet->GetItemSet();
 
         aHTMLStyle.nDefaultScriptType = ScGlobal::GetDefaultScriptType();
@@ -510,7 +509,8 @@ const SfxItemSet& ScHTMLExport::PageDefaults( SCTAB nTab )
                         ScGlobal::GetScriptedWhichID(
                             aHTMLStyle.nDefaultScriptType, ATTR_FONT_HEIGHT
                             )))).GetHeight();
-        aHTMLStyle.nFontSizeNumber = GetFontSizeNumber( static_cast< sal_uInt16 >( aHTMLStyle.nFontHeight ) );
+        aHTMLStyle.nFontSizeNumber = GetFontSizeNumber(
+                        static_cast<sal_uInt16>( aHTMLStyle.nFontHeight ) );
     }
 
     // Page style sheet printer settings, e.g. for background graphics.
@@ -828,20 +828,53 @@ void ScHTMLExport::WriteTables()
         }
         for ( SCROW nRow=nStartRow; nRow<=nEndRow; nRow++ )
         {
+            int firstMissing=-1;
             if ( bHasHiddenRows && pDoc->RowHidden(nRow, nTab) )
             {
+                firstMissing = nRow;
                 nRow = pDoc->FirstVisibleRow(nRow+1, nEndRow, nTab);
-                --nRow;
-                continue;   // for
+                if (nRow > nEndRow) break;
             }
-
-            IncIndent(1); TAG_ON_LF( OOO_STRING_SVTOOLS_HTML_tablerow );
+            OStringBuffer aStrTR(OOO_STRING_SVTOOLS_HTML_tablerow);
+            aStrTR.append(" data-row-num=\"").append(nRow+1).append("\" ");
+            IncIndent(1); TAG_ON_LF( aStrTR );
             bTableDataHeight = true;  // height at every first cell of each row
+
             for ( SCCOL nCol2=nStartCol; nCol2<=nEndCol; nCol2++ )
             {
-                if ( nCol2 == nEndCol )
-                    IncIndent(-1);
-                WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, nRow, nTab );
+                if ( nCol2 == nEndCol ) IncIndent(-1);
+                int processed = 0;
+                if (firstMissing >=0){
+                    int testRow;
+                    for (testRow=firstMissing; testRow<nRow; testRow++){
+                        int remainingHidden = nRow - testRow;
+                        ScAddress aPos( nCol2, testRow, nTab );
+                        ScRefCellValue aCell(*pDoc, aPos, blockPos[ nCol2 - nStartCol ]);
+                        const ScPatternAttr* pAttr = pDoc->GetPattern( nCol2, testRow, nTab );
+                        const SfxItemSet* pCondItemSet = pDoc->GetCondResult(
+                                                                nCol2, testRow, nTab, &aCell );
+
+                        const ScMergeAttr& rMergeAttr = pAttr->GetItem( ATTR_MERGE, pCondItemSet );
+
+                        ScHTMLGraphEntry* pGraphEntry = getGraphEntry(aPos);
+
+                        int rowSpan;
+                        if ( pGraphEntry )
+                            rowSpan = std::max(SCROW(pGraphEntry->aRange.aEnd.Row() - nStartRow + 1),
+                                               rMergeAttr.GetRowMerge() );
+                        else
+                            rowSpan = rMergeAttr.GetRowMerge();
+
+                        if (rowSpan > remainingHidden){
+                            WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, testRow, nTab );
+                            processed = 1;
+                            break;
+                        }
+
+                    }
+                }
+                if (processed == 0) WriteCell( blockPos[ nCol2 - nStartCol ], nCol2, nRow, nTab );
+
                 bTableDataHeight = false;
             }
 
@@ -849,8 +882,6 @@ void ScHTMLExport::WriteTables()
                 IncIndent(-1);
             TAG_OFF_LF( OOO_STRING_SVTOOLS_HTML_tablerow );
         }
-        // TODO: Uncomment later
-        // IncIndent(-1); TAG_OFF_LF( OOO_STRING_SVTOOLS_HTML_tbody );
 
         IncIndent(-1); TAG_OFF_LF( OOO_STRING_SVTOOLS_HTML_table );
 
@@ -880,19 +911,7 @@ void ScHTMLExport::WriteTables()
             OUT_COMMENT( "**************************************************************************" );
     }
 }
-
-void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
-                             SCCOL nStartColumn, SCROW nStartRow, SCTAB nTab)
-{
-    ScAddress aPos( nStartColumn, nStartRow, nTab );
-    ScRefCellValue aCell(*pDoc, aPos, rBlockPos);
-    const ScPatternAttr* pAttr = pDoc->GetPattern( nStartColumn, nStartRow, nTab );
-    const SfxItemSet* pCondItemSet = pDoc->GetCondResult( nStartColumn, nStartRow, nTab, &aCell );
-
-    const ScMergeFlagAttr& rMergeFlagAttr = pAttr->GetItem( ATTR_MERGE_FLAG, pCondItemSet );
-    if ( rMergeFlagAttr.IsOverlapped() )
-        return ;
-
+ScHTMLGraphEntry* ScHTMLExport::getGraphEntry(ScAddress aPos){
     ScHTMLGraphEntry* pGraphEntry = nullptr;
     if ( bTabHasGraphics && !mbSkipImages )
     {
@@ -907,11 +926,23 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
                     pGraphEntry = pE;
                     break;  // for
                 }
-                else
-                    return ; // Is a Col/RowSpan, Overlapped
             }
         }
     }
+    return pGraphEntry;
+}
+
+void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
+                             SCCOL nStartColumn, SCROW nStartRow, SCTAB nTab)
+{
+    ScAddress aPos( nStartColumn, nStartRow, nTab );
+    ScRefCellValue aCell(*pDoc, aPos, rBlockPos);
+    const ScPatternAttr* pAttr = pDoc->GetPattern( nStartColumn, nStartRow, nTab );
+    const SfxItemSet* pCondItemSet = pDoc->GetCondResult( nStartColumn, nStartRow, nTab, &aCell );
+
+    const ScMergeFlagAttr& rMergeFlagAttr = pAttr->GetItem( ATTR_MERGE_FLAG, pCondItemSet );
+
+    ScHTMLGraphEntry* pGraphEntry = getGraphEntry(aPos);
 
     sal_uInt32 nFormat = pAttr->GetNumberFormat( pFormatter );
     bool bValueData = aCell.hasNumeric();
@@ -919,14 +950,18 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
     if (!aCell.isEmpty())
         nScriptType = pDoc->GetScriptType(nStartColumn, nStartRow, nTab, &aCell);
 
-    if ( nScriptType == SvtScriptType::NONE )
-        nScriptType = aHTMLStyle.nDefaultScriptType;
+    if (nScriptType == SvtScriptType::NONE) nScriptType = aHTMLStyle.nDefaultScriptType;
 
     OStringBuffer aStrTD(OOO_STRING_SVTOOLS_HTML_tabledata);
 
+
+
     // border of the cells
     const SvxBoxItem* pBorder = pDoc->GetAttr( nStartColumn, nStartRow, nTab, ATTR_BORDER );
-    if ( pBorder && (pBorder->GetTop() || pBorder->GetBottom() || pBorder->GetLeft() || pBorder->GetRight()) )
+    if ( pBorder && (pBorder->GetTop() ||
+                    pBorder->GetBottom() ||
+                    pBorder->GetLeft() ||
+                    pBorder->GetRight()) )
     {
         aStrTD.append(" " OOO_STRING_SVTOOLS_HTML_style "=\"");
 
@@ -947,6 +982,10 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
     sal_uInt16 nHeightPixel;
 
     const ScMergeAttr& rMergeAttr = pAttr->GetItem( ATTR_MERGE, pCondItemSet );
+
+    SCCOL cellStartCol = nStartColumn;
+    SCROW cellStartRow = nStartRow;
+
     if ( pGraphEntry || rMergeAttr.IsMerged() )
     {
         SCCOL nRawColSpan, jC;
@@ -965,15 +1004,17 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
             for ( jC=nStartColumn; jC<nLastCol; jC++ ){
                 if (pDoc->ColHidden(jC, nTab)){
                     nActColSpan -= 1;
+                    if (jC == cellStartCol) cellStartCol += 1;
                 }
             }
             if (nActColSpan > 1)
                 aStrTD.append(' ').append(OOO_STRING_SVTOOLS_HTML_O_colspan).
                     append('=').append(static_cast<sal_Int32>(nActColSpan));
             if (nActColSpan < 1) return; // nothing to print
-        }
-        else
+        } else {
             if (pDoc->ColHidden(nStartColumn, nTab)) return; // nothing to output
+            if ( rMergeFlagAttr.IsOverlapped() ) return ;
+        }
 
 
         if ( pGraphEntry )
@@ -991,18 +1032,32 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
             int nActRowSpan = nRawRowSpan;
             for (nRowNum=nStartRow; nRowNum <= nLastRow; nRowNum ++)
             {
-                if (pDoc->RowHidden(nRowNum, nTab)) nActRowSpan -= 1;
-        }
+                if (pDoc->RowHidden(nRowNum, nTab)){
+                    nActRowSpan -= 1;
+                    if (nRowNum == cellStartRow) cellStartRow += 1;
+                }
+            }
             aStrTD.append(' ').append(OOO_STRING_SVTOOLS_HTML_O_rowspan).
                 append('=').append(static_cast<sal_Int32>(nActRowSpan));
-        }
-        else
+        } else{
             nHeightPixel = ToPixel( pDoc->GetRowHeight( nStartRow, nTab ) );
-    }
-    else{
+            if ( rMergeFlagAttr.IsOverlapped() ) return ;
+        }
+    } else {
         if (pDoc->ColHidden(nStartColumn, nTab)) return; // nothing to output
         nHeightPixel = ToPixel( pDoc->GetRowHeight( nStartRow, nTab ) );
+        if ( rMergeFlagAttr.IsOverlapped() ){
+           return ;
+        }
     }
+
+    aStrTD.append(" ").append("data-cell-code=\"");
+    char sCol = '@'+cellStartCol / 26;
+    char col = 'A'+cellStartCol % 26;
+    if (sCol > '@') aStrTD.append(sCol);
+    aStrTD.append(col).append(cellStartRow+1).
+            append("\" data-col-num=\"").
+            append(cellStartCol+1).append("\" ");
 
     if ( bTableDataHeight )
     {
