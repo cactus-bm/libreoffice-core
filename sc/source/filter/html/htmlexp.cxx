@@ -1056,7 +1056,7 @@ void ScHTMLExport::WriteCell(sc::ColumnBlockPosition& rBlockPos,
     char col = 'A'+cellStartCol % 26;
     if (sCol > '@') aStrTD.append(sCol);
     aStrTD.append(col).append(cellStartRow+1).
-            append("\" data-col-number=\"").
+            append("\" data-col-num=\"").
             append(cellStartCol+1).append("\" ");
 
     if ( bTableDataHeight )
