@@ -29,10 +29,13 @@ rm -r -f  wizards
 rm -r -f  wordbook
 rm -r -f  xdg
 rm -r -f  xpdfimport
-#rm -r -f  xslt
 rm -r -f  dtd
 rm -r -f extensions
 rm config/images*
+
+# ------
+
+# rm -r -f  xslt
 
 echo Removing libraries from program
 cd ..
@@ -106,12 +109,12 @@ rm libjdbclo.so
 # rm libuno_cppuhelpergcc3.so.3
 
 echo adding extra libraries
-for LIB in libssl3.so libsmime3.so libnss3.so libfontconfig.so.1 libavahi-client.so.3.2.9 libavahi-common.so.3.5.3
+for LIB in libssl3.so libsmime3.so libnss3.so libfontconfig.so libavahi-client.so libavahi-common.so
 do
     if [[ ! -f $LIB ]]
     then
-        echo installing $LIB
-        cp /usr/lib64/$LIB .
+        echo installing ${LIB}*
+        (cd /usr/lib64; tar -cf - ${LIB}*) | tar -xvf -
     fi
 done
 cd ..
@@ -147,4 +150,5 @@ echo total is $TOTAL_SIZE of which share size is $SHARE_SIZE program size is $PR
 echo
 echo
 echo
+/* vim:set shiftwidth=4 softtabstop=4 expandtab: */
 
