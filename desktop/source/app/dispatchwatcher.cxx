@@ -502,7 +502,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
             }
             catch (const css::io::IOException&)
             {
-                std::cout << "ERROR io exception" << std::endl;
                 TOOLS_WARN_EXCEPTION(
                     "desktop.app",
                     "Dispatchwatcher IOException while calling loadComponentFromURL");
