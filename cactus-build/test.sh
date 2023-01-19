@@ -5,6 +5,7 @@ DO_PPT=0
 DO_PPT_HTML=0
 DO_XLS=0
 DO_XLS_HTML=0
+DO_XLSX_XLS=0
 DO_HTML=0
 DO_DOC=0
 DO_DOC_PDF=0
@@ -40,6 +41,11 @@ if [[ "X$1" == "Xclean" ]]
         then
                 PARS=$PARS" "xls-html
                 DO_XLS_HTML=1
+        fi
+        if [[ "X$1" == "Xxlsx-xls" ]]
+        then
+                PARS=$PARS" "xlsx-xls
+                DO_XLSX_XLS=1
         fi
         if [[ "X$1" == "Xppt" || "X$1" == "Xall" ]]
         then
@@ -200,7 +206,7 @@ fi
 
 if [[ $DO_XLS_HTML == 1 ]]
 then
-        echo testing xls to xlsx
+        echo testing xls to html
         for FILE in $(ls *.xls)
         do
                 EXECUTE "html" "$FILE"
@@ -211,4 +217,17 @@ then
         done
         echo
 fi
-
+if [[ $DO_XLS_XLSX == 1 ]]
+then
+        echo testing xls to xlsx
+        for FILE in $(ls *.xlsx)
+        do
+                EXECUTE "xls" "$FILE"
+                if [[ $ONLY_ONE == 1 ]]
+                then
+                        break
+                fi
+        done
+        echo
+fi
+/* vim:set shiftwidth=4 softtabstop=4 expandtab: */
