@@ -374,7 +374,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
         // load the document ... if they are loadable!
         // Otherwise try to dispatch it ...
         Reference < XPrintable > xDoc;
-        std::cout << "Creating xDoc for" << aName << std::endl;
         if(
             ( aName.startsWith( ".uno" ) )  ||
             ( aName.startsWith( "slot:" ) )  ||
@@ -449,13 +448,9 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
         }
         else
         {
-            std::cout << "about to read file of type file " << aName << std::endl;
             INetURLObject aObj( aName );
             if ( aObj.GetProtocol() == INetProtocol::PrivSoffice )
-            {
-                std::cout << "Setting atarget to default_" << std::endl;
                 aTarget = "_default";
-            }
 
             // Set "AsTemplate" argument according to request type
             if ( aDispatchRequest.aRequestType == REQUEST_FORCENEW ||
@@ -465,7 +460,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
                                    Any(aDispatchRequest.aRequestType == REQUEST_FORCENEW),
                                    PropertyState_DIRECT_VALUE);
             }
-            std::cout << "request type is " << aDispatchRequest.aRequestType << std::endl;
 
             // if we are called in viewmode, open document read-only
             if(aDispatchRequest.aRequestType == REQUEST_VIEW) {
@@ -477,7 +471,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
                 aArgs.emplace_back("StartPresentation", 0, Any(true), PropertyState_DIRECT_VALUE);
             }
 
-            std::cout << "Are we to set an input filters " << bSetInputFilter << std::endl;
             // Force input filter, if possible
             if( bSetInputFilter )
             {
@@ -497,20 +490,12 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
             // This is a synchron loading of a component so we don't have to deal with our statusChanged listener mechanism.
             try
             {
-                std::cout << "about to load from url" << std::endl;
-                std::cout << "xdoc is " << xDoc << std::endl;
-                std::cout << "aArgs are " << aArgs.data() << std::endl;
-                std::cout << "xDesktop is " <<xDesktop << std::endl;
-                std::cout << "aName is " << aName << std::endl;
-                std::cout << "aTarget is " << aTarget << std::endl;
                 xDoc.set(comphelper::SynchronousDispatch::dispatch(
                              xDesktop, aName, aTarget, comphelper::containerToSequence(aArgs)),
                          UNO_QUERY);
-                std::cout << "load completed I think: xDoc is " << xDoc << std::endl;
             }
             catch (const css::lang::IllegalArgumentException&)
             {
-                std::cout << "ERROR illegal argument" << std::endl;
                 TOOLS_WARN_EXCEPTION(
                     "desktop.app",
                     "Dispatchwatcher IllegalArgumentException while calling loadComponentFromURL");
@@ -522,7 +507,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
                     "desktop.app",
                     "Dispatchwatcher IOException while calling loadComponentFromURL");
             }
-            std::cout << "About to test request type " << aDispatchRequest.aRequestType << std::endl;
             if ( aDispatchRequest.aRequestType == REQUEST_OPEN ||
                  aDispatchRequest.aRequestType == REQUEST_VIEW ||
                  aDispatchRequest.aRequestType == REQUEST_START ||
@@ -539,8 +523,6 @@ bool DispatchWatcher::executeDispatchRequests( const std::vector<DispatchRequest
                       aDispatchRequest.aRequestType == REQUEST_CAT ||
                       aDispatchRequest.aRequestType == REQUEST_SCRIPT_CAT )
             {
-                std::cout << "about to test xDoc" << std::endl;
-                std::cout << xDoc << std::endl;
                 if ( xDoc.is() )
                 {
                     // Do we need to save the document in a different format?
