@@ -163,11 +163,18 @@ minutes to an hour.
 When this file is decompressed and unzipped the executable is __instdir/program/soffice.bin__.
 
 NOTE: When running within an AWS Lambda  it is necessary to add instdir/program to the
-environment variable __LD_LIBRARY_PATH__, in the following example the function
-__load_libre_office()__ expands the application
-from /opt/lo.tar.br (where it is put by the AWS system) into __/tmp/instdir__
+environment variable __LD_LIBRARY_PATH__, in the following example Python script
+the function __load_libre_office()__ expands the application
+from __/opt/lo.tar.br__ (where it is put by the AWS system) into __/tmp/instdir__
 and returns the name of the executable:
 ```
+install_dir = "/tmp/instdir"
+libre_brotli = "/opt/lo.tar.br"
+CHUNK_SIZE = 65536
+
+def is_libre_office_installed():
+    return os.path.exists(install_dir) and os.path.isdir(install_dir)
+
 def decompress_brotli_to_memory(binary_file: str) -> BytesIO:
     buffer = BytesIO()
     with open(binary_file, "rb") as brotli_file:
