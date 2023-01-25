@@ -40,7 +40,7 @@ Setting up __Amazon-linux-2__ environment for building is described in
 
 ### Cactus version of LibreOffice/core
 This is a fork of the GitHub mirror of LibreOffice/core and also requires
-two other LibrOffice forks one called libreoffice-dictionaries and the other
+two other LibreOffice forks one called libreoffice-dictionaries and the other
 libreoffice-help. The build process is as for standard LibeOffice but then
 we have scripts to cut the output down to a minimum size so that we can use it.
 
@@ -69,7 +69,8 @@ on subsequent builds, though when rebuilding just running `make` rather than
 `./cactus-make` will avoid the __make clean__ and again improve the build time provide
 nothing has changed that would effect autogen output.
 
-This build process it's output as a directory call instdir at the root of libreoffice.
+This build process produce a directory called instdir which contains the libreoffice
+application soffice.bin and the necessary libraries.
 
 
 ## Testing the release
@@ -92,10 +93,9 @@ The test script allow you to pick which tests you wish to run.
 This script starts by examining a directory called instdir within the
 __cactus_build__ subdirectory, and if it is not present or does not
 contain the main program file __soffice.bin__ then a copy of insdir
-at the higher level is made but excluding many files, the directory
+at the higher level is made but excluding many library files, the directory
 tree should then be small enough to use as an __AWS Lambda Layer__
-file, however in test mode it does not compress this into a standard
-AWS Lambda Layer file see__Build AWS Lambda Layer file__.
+file.
 
 to run tests:
 ```bash
@@ -150,7 +150,7 @@ $ ./build.sh
 ```
 This will:
 
-* tar up the instdir directory into a foile called lo.tar.
+* tar up the instdir directory into a file called lo.tar.
 * compress it using brotli to create lo.tar.br.
 * zip up that file to produce__cactus-libreoffice_7-6-0-0_CACTUS_BUILD_1.zip__
 (where 7-6-0-0 is a libreoffice build version-number and CACTUS_1 is largest
@@ -158,9 +158,45 @@ This will:
 
 > Note this process can take a while as __brotli__ compression is quite slow
 and does not take advantage of multiple threads so it's going to be 30
-minutes to an hour all the time.
+minutes to an hour.
 
 When this file is decompressed and unzipped the executable is __instdir/program/soffice.bin__.
+
+NOTE: When running within an AWS Lambda  it is necessary to add instdir/program to the
+environment variable __LD_LIBRARY_PATH__, in the following example the function
+__load_libre_office()__ expands the application
+from /opt/lo.tar.br (where it is put by the AWS system) into __/tmp/instdir__
+and returns the name of the executable:
+```
+def decompress_brotli_to_memory(binary_file: str) -> BytesIO:
+    buffer = BytesIO()
+    with open(binary_file, "rb") as brotli_file:
+        d = brotli.Decompressor()
+        while True:
+            chunk = brotli_file.read(CHUNK_SIZE)
+            buffer.write(d.decompress(chunk))
+            if len(chunk) < CHUNK_SIZE:
+                buffer.seek(0)
+                return buffer
+
+
+def explode_tar_from_memory(buffer: BytesIO, target: str):
+    with tarfile.open(fileobj=buffer) as tar:
+        tar.extractall(target)
+
+
+
+def load_libre_office() -> str:
+    if not is_libre_office_installed():
+        print("Loading libreoffice package")
+        buffer = decompress_brotli_to_memory(libre_brotli)
+        explode_tar_from_memory(buffer, "/tmp")
+        print("libreoffice package Loaded")
+        newPath = os.environ["LD_LIBRARY_PATH"]+":/tmp/instdir/program";
+        os.environ["LD_LIBRARY_PATH"]=newPath
+    return f"{install_dir}/program/soffice.bin"
+
+```
 
 ---
 # LibreOffice
