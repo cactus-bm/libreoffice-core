@@ -27,7 +27,7 @@ rm -r -f  tipoftheday
 rm -r -f  toolbarmode
 rm -r -f  wizards
 rm -r -f  wordbook
-rm -r -f  xdg
+#rm -r -f  xdg
 rm -r -f  xpdfimport
 rm -r -f  dtd
 rm -r -f extensions
@@ -108,13 +108,65 @@ rm libjdbclo.so
 # rm libslideshowlo.so
 # rm libuno_cppuhelpergcc3.so.3
 
+#------------
+#
+#rm libsmdlo.so*
+#rm libuuresolverlo.so*
+#rm libinvocadaptlo.so*
+#rm libmozbootstraplo.so*
+#rm libstoragefdlo.so*
+#rm libjuhx.so*
+#rm libmigrationoo3lo.so*
+#rm libwriterperfectlo.so*
+#rm libtextconversiondlgslo.so*
+#rm libsdbc2.so*
+#rm libwpftcalclo.so*
+#rm libinvocationlo.so*
+#rm libsdbtlo.so*
+#rm libt602filterlo.so*
+#rm libsolverlo.so*
+#rm libsaxlo.so*
+#rm libdbpool2.so*
+#rm libabplo.so*
+#rm libbinaryurplo.so*
+#rm libdlgprovlo.so*
+#rm libscriptframe.so*
+#rm libtextconv_dict.so*
+#rm libucpftp1.so*
+#rm libmysql_jdbclo.so*
+#rm libcached1.so*
+#rm libcalclo.so*
+#rm libpdffilterlo.so*
+#rm libiolo.so*
+#rm libdeploymentgui.so*
+#rm libtllo.so*
+#rm libflatlo.so*
+rm libevoablo.so*
+rm libucpdav1.so*
+rm libbiblo.so*
+rm libmsformslo.so*
+rm libpdfimportlo.so*
+rm libucbhelper.so*
+rm libbootstraplo.so*
+rm libcairocanvaslo.so*
+rm libscuilo.so*
+rm libsvgfilterlo.so*
+rm libpcrlo.so*
+rm libacclo.so*
+rm libslideshowlo.so*
+rm libsmlo.so*
+rm libwpftdrawlo.so*
+rm libcuilo.so*
+
 echo adding extra libraries
-for LIB in libssl3.so libsmime3.so libnss3.so libfontconfig.so libavahi-client.so libavahi-common.so
+for LIB in libdbus-1.so libssl3.so libsmime3.so libnss3.so libavahi-client.so libavahi-common.so\
+           libsystemd.so libdw.so libdw-0.176.so libelf.so libelf-0.176.so libgcrypt.so libgpg-error.so liblz4.so libsystemd.so\
+           libfontconfig.so
 do
     if [[ ! -f $LIB ]]
     then
-        echo installing ${LIB}*
-        (cd /usr/lib64; tar -cf - ${LIB}*) | tar -xvf -
+        echo copying ${LIB}
+        ( cd /usr/lib64; tar -cf - ${LIB}*) | tar -xvf -
     fi
 done
 cd ..
@@ -130,6 +182,8 @@ cd ..
 # will have the same identifier, for our purposes
 # this is unlikely to matter.
 echo "Doing config run"
+LD_LIBRAY_PATH=`pwd`/instdir/program:$LD_LIBRARY_PATH
+echo "1,2,3\n4,5,6\na,b,c" > x.csv
 instdir/program/soffice.bin \
         --headless \
         --norestore \
@@ -150,5 +204,5 @@ echo total is $TOTAL_SIZE of which share size is $SHARE_SIZE program size is $PR
 echo
 echo
 echo
-/* vim:set shiftwidth=4 softtabstop=4 expandtab: */
+# vim:set shiftwidth=4 softtabstop=4 expandtab:
 
