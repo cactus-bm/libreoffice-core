@@ -1,5 +1,6 @@
 #! /bin/bash
 
+LIKE=".*"
 ONLY_ONE=0
 DO_PPT=0
 DO_PPT_HTML=0
@@ -62,6 +63,13 @@ if [[ "X$1" == "Xclean" ]]
                 PARS=$PARS" "$1
                 ONLY_ONE=1
         fi
+        if [[ "X$1" == "Xlike" ]]
+        then
+                shift
+
+                PARS=$PARS" ilike "$1
+                LIKE=$1
+        fi
         shift
 done
 
@@ -86,6 +94,8 @@ then
         echo "      one:   means just run one test of any type specified"
         echo "             The test run is the one named alphabtically"
         echo "             as the first."
+        echo "      like regexp the processed files must match the given"
+        echo "                  regular expression regexp."
         echo
         echo "   Processing tasks:"
         echo "      clean: meaning extract the from the LibreOff*.tar.gz"
@@ -106,18 +116,22 @@ fi
 
 # takes 2 parameters the output type and the file
 EXECUTE(){
-        echo processing $FILE
-        instdir/program/soffice.bin \
-               --headless \
-               --norestore \
-               --invisible \
-               --nodefault \
-               --nofirststartwizard \
-               --nolockcheck \
-               --nologo \
-               --convert-to $1 \
-               --outdir converted \
-                $2
+        T=$(echo $FILE | grep "$LIKE")
+        if [[ "X$T" != "X" ]]
+        then
+            echo processing $FILE
+            instdir/program/soffice.bin \
+                   --headless \
+                   --norestore \
+                   --invisible \
+                   --nodefault \
+                   --nofirststartwizard \
+                   --nolockcheck \
+                   --nologo \
+                   --convert-to $1 \
+                   --outdir converted \
+                    $2
+        fi
 }
 if [[ $DO_HTML == 1 ]]
 then
