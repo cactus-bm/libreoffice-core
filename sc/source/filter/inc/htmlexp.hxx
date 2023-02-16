@@ -129,6 +129,7 @@ class ScHTMLExport : public ScExportBase
     bool             mbSkipImages;
     /// If HTML header and footer should be written as well, or just the content itself.
     bool             mbSkipHeaderFooter;
+    bool             mbPreserveLeadingBlanks;
 
     const SfxItemSet& PageDefaults( SCTAB nTab );
 
