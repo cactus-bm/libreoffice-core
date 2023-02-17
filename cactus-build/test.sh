@@ -7,6 +7,7 @@ DO_PPT_HTML=0
 DO_XLS=0
 DO_XLS_HTML=0
 DO_XLSX_XLS=0
+DO_HTML_HIDE=0
 DO_HTML=0
 DO_DOC=0
 DO_DOC_PDF=0
@@ -22,6 +23,11 @@ if [[ "X$1" == "Xclean" ]]
         then
                 PARS=$PARS" "xlsx-html
                 DO_HTML=1
+        fi
+        if [[ "X$1" == "Xhtml-hide" ]]
+        then
+                PARS=$PARS" "xlsx-html-hide
+                DO_HTML_HIDE=1
         fi
         if [[ "X$1" == "Xdoc" || "X$1" == "Xall" ]]
         then
@@ -116,7 +122,7 @@ fi
 
 # takes 2 parameters the output type and the file
 EXECUTE(){
-        T=$(echo $FILE | grep "$LIKE")
+        T=$(echo "$FILE" | grep "$LIKE")
         if [[ "X$T" != "X" ]]
         then
             echo processing $FILE
@@ -128,7 +134,7 @@ EXECUTE(){
                    --nofirststartwizard \
                    --nolockcheck \
                    --nologo \
-                   --convert-to $1 \
+                   --convert-to "$1" \
                    --outdir converted \
                     $2
         fi
@@ -139,6 +145,20 @@ then
         for FILE in $(ls *.xlsx *.ods)
         do
                 EXECUTE "html" "$FILE"
+                if [[ $ONLY_ONE == 1 ]]
+                then
+                        break
+                fi
+        done
+        echo
+fi
+
+if [[ $DO_HTML_HIDE == 1 ]]
+then
+        echo testing xlsx and ods files in hide mode
+        for FILE in $(ls *.xlsx *.ods)
+        do
+                EXECUTE "html:HTML (StarCalc):SkipLeadingBlanks" "$FILE"
                 if [[ $ONLY_ONE == 1 ]]
                 then
                         break
