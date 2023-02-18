@@ -1,11 +1,13 @@
 #! /bin/bash
 
+LIKE=".*"
 ONLY_ONE=0
 DO_PPT=0
 DO_PPT_HTML=0
 DO_XLS=0
 DO_XLS_HTML=0
 DO_XLSX_XLS=0
+DO_HTML_HIDE=0
 DO_HTML=0
 DO_DOC=0
 DO_DOC_PDF=0
@@ -21,6 +23,11 @@ if [[ "X$1" == "Xclean" ]]
         then
                 PARS=$PARS" "xlsx-html
                 DO_HTML=1
+        fi
+        if [[ "X$1" == "Xhtml-hide" ]]
+        then
+                PARS=$PARS" "xlsx-html-hide
+                DO_HTML_HIDE=1
         fi
         if [[ "X$1" == "Xdoc" || "X$1" == "Xall" ]]
         then
@@ -62,6 +69,13 @@ if [[ "X$1" == "Xclean" ]]
                 PARS=$PARS" "$1
                 ONLY_ONE=1
         fi
+        if [[ "X$1" == "Xlike" ]]
+        then
+                shift
+
+                PARS=$PARS" ilike "$1
+                LIKE=$1
+        fi
         shift
 done
 
@@ -86,6 +100,8 @@ then
         echo "      one:   means just run one test of any type specified"
         echo "             The test run is the one named alphabtically"
         echo "             as the first."
+        echo "      like regexp the processed files must match the given"
+        echo "                  regular expression regexp."
         echo
         echo "   Processing tasks:"
         echo "      clean: meaning extract the from the LibreOff*.tar.gz"
@@ -106,18 +122,22 @@ fi
 
 # takes 2 parameters the output type and the file
 EXECUTE(){
-        echo processing $FILE
-        instdir/program/soffice.bin \
-               --headless \
-               --norestore \
-               --invisible \
-               --nodefault \
-               --nofirststartwizard \
-               --nolockcheck \
-               --nologo \
-               --convert-to $1 \
-               --outdir converted \
-                $2
+        T=$(echo "$FILE" | grep "$LIKE")
+        if [[ "X$T" != "X" ]]
+        then
+            echo processing $FILE
+            instdir/program/soffice.bin \
+                   --headless \
+                   --norestore \
+                   --invisible \
+                   --nodefault \
+                   --nofirststartwizard \
+                   --nolockcheck \
+                   --nologo \
+                   --convert-to "$1" \
+                   --outdir converted \
+                    $2
+        fi
 }
 if [[ $DO_HTML == 1 ]]
 then
@@ -125,6 +145,20 @@ then
         for FILE in $(ls *.xlsx *.ods)
         do
                 EXECUTE "html" "$FILE"
+                if [[ $ONLY_ONE == 1 ]]
+                then
+                        break
+                fi
+        done
+        echo
+fi
+
+if [[ $DO_HTML_HIDE == 1 ]]
+then
+        echo testing xlsx and ods files in hide mode
+        for FILE in $(ls *.xlsx *.ods)
+        do
+                EXECUTE "html:HTML (StarCalc):SkipLeadingBlanks" "$FILE"
                 if [[ $ONLY_ONE == 1 ]]
                 then
                         break
