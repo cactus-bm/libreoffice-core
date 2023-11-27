@@ -1,3 +1,3 @@
 #! /bin/bash
-./autogen.sh  --with-distro=LibreOfficeCactus && make clean && make
+./autogen.sh  --with-distro=LibreOfficeCactus && make clean && make -j20
 
