@@ -112,7 +112,7 @@ rm libjdbclo.so
 # rm libuno_cppuhelpergcc3.so.3
 
 #------------
-#
+
 #rm libsmdlo.so*
 #rm libuuresolverlo.so*
 #rm libinvocadaptlo.so*
@@ -144,7 +144,9 @@ rm libjdbclo.so
 #rm libdeploymentgui.so*
 #rm libtllo.so*
 #rm libflatlo.so*
-#--------------------------- for test
+
+#----------------------
+
 rm libevoablo.so*
 rm libucpdav1.so*
 rm libbiblo.so*
