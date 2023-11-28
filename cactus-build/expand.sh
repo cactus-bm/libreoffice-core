@@ -58,6 +58,9 @@ rm java*
 rm libC*
 rm libEng*
 rm libLang*
+
+# ------------------ test
+#
 rm libOsi*
 rm libpython3.8.so.1.0
 rm libpython3.8.so
@@ -70,8 +73,8 @@ rm libwps-0.4-lo.so.4
 rm libvbaswobjlo.so
 rm libvbaobjlo.so
 rm libdbalo.so
-rm libchartcorelo.so
-rm libchartcontrollerlo.so
+# rm libchartcorelo.so
+# rm libchartcontrollerlo.so
 rm libmysqlclo.so
 rm libdict_*.so
 rm libodbclo.so
@@ -109,7 +112,7 @@ rm libjdbclo.so
 # rm libuno_cppuhelpergcc3.so.3
 
 #------------
-#
+
 #rm libsmdlo.so*
 #rm libuuresolverlo.so*
 #rm libinvocadaptlo.so*
@@ -141,6 +144,9 @@ rm libjdbclo.so
 #rm libdeploymentgui.so*
 #rm libtllo.so*
 #rm libflatlo.so*
+
+#----------------------
+
 rm libevoablo.so*
 rm libucpdav1.so*
 rm libbiblo.so*

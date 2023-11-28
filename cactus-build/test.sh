@@ -11,6 +11,8 @@ DO_HTML_HIDE=0
 DO_HTML=0
 DO_DOC=0
 DO_DOC_PDF=0
+DO_XL_CSV=0
+DO_XL_CSV_SHEETS=0
 PARS=""
 while [[ $# > 0 ]]
 do
@@ -18,6 +20,16 @@ if [[ "X$1" == "Xclean" ]]
         then
                 PARS=$PARS" "$1
                 rm -r -f instdir
+        fi
+        if [[ "X$1" == "Xcsv-sheets" || "X$1" == "Xall" ]]
+        then
+                PARS=$PARS" "xlsx-csv-sheets
+                DO_XL_CSV_SHEETS=1
+        fi
+        if [[ "X$1" == "Xcsv" || "X$1" == "Xall" ]]
+        then
+                PARS=$PARS" "xlsx-csv
+                DO_XL_CSV=1
         fi
         if [[ "X$1" == "Xhtml" || "X$1" == "Xall" ]]
         then
@@ -100,6 +112,8 @@ then
         echo "      one:   means just run one test of any type specified"
         echo "             The test run is the one named alphabtically"
         echo "             as the first."
+        echo "      csv:   output xlsx to csv."
+        echo "      csv-sheets:   output xlsx to csv-all sheets."
         echo "      like regexp the processed files must match the given"
         echo "                  regular expression regexp."
         echo
@@ -145,6 +159,34 @@ then
         for FILE in $(ls *.xlsx *.ods)
         do
                 EXECUTE "html" "$FILE"
+                if [[ $ONLY_ONE == 1 ]]
+                then
+                        break
+                fi
+        done
+        echo
+fi
+
+if [[ $DO_XL_CSV_SHEETS == 1 ]]
+then
+        echo testing xlsx and ods files to csv all sheetes
+        for FILE in $(ls *.xls *.xlsx *.ods)
+        do
+                EXECUTE "csv:Text - txt - csv (StarCalc):44,34,0,1,,0,false,true,false,false,false,-1" "$FILE"
+                if [[ $ONLY_ONE == 1 ]]
+                then
+                        break
+                fi
+        done
+        echo
+fi
+
+if [[ $DO_XL_CSV == 1 ]]
+then
+        echo testing xlsx and ods files to csv
+        for FILE in $(ls *.xls *.xlsx *.ods)
+        do
+                EXECUTE "csv" "$FILE"
                 if [[ $ONLY_ONE == 1 ]]
                 then
                         break
