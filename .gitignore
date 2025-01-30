@@ -199,5 +199,6 @@ LibreOffice.VC.VC.opendb
 /cactus-build/converted
 /cactus-build/instdir
 /cactus-build/cactus-libreoffice*
+/cactus-build/log*
 README.md.backup
 lo.tar*
