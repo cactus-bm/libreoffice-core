@@ -2,7 +2,7 @@
 
 If this application is built on ubuntu or any other linux system normally used for
 development there are many libraries that are not built into the application 
-because they are available in the environment therefor the constructed program will
+because they are available in the environment therefore the constructed program will
 not run in an EC2 environment.
 
 The obvious solution is to build in an ec2 environment that is at least partially
@@ -12,7 +12,7 @@ So this must be amazon linux 2.
 
 ## construct a virtual machine
 
-Construct an ec2 vm either at amazon or locallys.
+Construct an ec2 vm either at amazon or locally.
 
 If using amazon hosted machine t2.2xlarge is adequate, though picking something with
 more cores will speed up compilation, though most of what you do is manual this may be
@@ -199,7 +199,8 @@ it can be tested with:
 
 ```
 $ cd cactus-build
-$ create-test html
+$ ./expand.sh    ## will create and instance for testing with not required libraries removed.
+$ ./test.sh html ## will run create html tests, there are several other tests that can be run
 ```
 
 If this worked there will be a number of html files in the __converted__ subdirectory 
@@ -210,8 +211,11 @@ so assuming you had tea whilst the compilation happened it is either time for di
 or supper once you have started this
 
 ```
-$ ./create-test build
+$ ./build.sh
 ```
+Note this uses Brotli compression so also takes an age to complete.
 
-Now we have a file __caictus-soffice....zip__ which can be deployed as an Amazon Lambda layer.
+Now we have a file __cactus-soffice_X-X-X-X_YYYYYY.zip__ which can be deployed as an Amazon
+Lambda layer, X-X-X-X is the libreoffice release number, YYYYY is the latest cactus build
+tag.
 
