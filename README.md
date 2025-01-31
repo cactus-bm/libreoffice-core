@@ -7,6 +7,7 @@ display within the website. And secondarily to converting:
 * __xls__(Microsoft Excel spreadsheet files pre-2007) to __xlsx__ files.
 * __doc__(Microsoft Word files pre-2007) to __docx__ files.
 * __ppt__(Microsoft Power Point files pre-2007) to __pptx__ files.
+* __docx__(Microsoft Word) to __pdf__ files.
 
 __LibreOffice__ as delivered contains a bug which effects the conversion
 of __xlsx__ to __HTML__ this produces bad formatting where a hidden column

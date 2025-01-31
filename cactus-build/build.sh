@@ -4,7 +4,7 @@ echo
 rm cactus-libreoffice*.zip
 rm lo.*
 echo filtering ../instdir to instdir
-#./expand.sh
+./expand.sh
 echo program copied
 echo building release file
 VERSION=$(cat ../configure |

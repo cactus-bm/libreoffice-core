@@ -165,9 +165,11 @@ rm libwpftdrawlo.so*
 rm libcuilo.so*
 
 echo adding extra libraries
-for LIB in libdbus-1.so libssl3.so libsmime3.so libnss3.so libavahi-client.so libavahi-common.so\
-           libsystemd.so libdw.so libdw-0.176.so libelf.so libelf-0.176.so libgcrypt.so libgpg-error.so liblz4.so libsystemd.so\
-           libfontconfig.so
+for LIB in libdbus-1.so libssl3.so libsmime3.so libnss3.so \
+           libavahi-client.so libavahi-common.so\
+           libsystemd.so libdw.so libdw-0.176.so libelf.so \
+           libelf-0.176.so libgcrypt.so libgpg-error.so liblz4.so \
+           libsystemd.so libfontconfig.so libsoftokn3.so
 do
     if [[ ! -f $LIB ]]
     then
